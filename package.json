@@ -1,0 +1,30 @@
+{
+  "name": "dodlings",
+  "version": "0.1.0",
+  "description": "Rustlings-style TypeScript exercises for learning code through data-oriented design.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "dodlings": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:solutions": "tsx src/cli.ts dev check-solutions"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.0.1",
+    "chalk": "^5.6.2",
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
