@@ -7,9 +7,11 @@ import { Command } from "commander";
 import { input } from "@inquirer/prompts";
 import { exercises, findExercise } from "./manifest.js";
 import { fromRoot } from "./paths.js";
-import { loadState, mark, nextPending, saveState } from "./state.js";
+import { freshState, loadState, mark, nextPending, saveState } from "./state.js";
 import { runExercise } from "./runner.js";
 import type { Exercise } from "./types.js";
+
+const watchKeymap = "enter=rerun, h=hint, n=next, p=previous, r=reset, R=reset all, q=quit";
 
 function requireExercise(slug: string | undefined, fallback?: string): Exercise {
   const name = slug ?? fallback;
@@ -25,6 +27,21 @@ function requireExercise(slug: string | undefined, fallback?: string): Exercise 
 
 function progressLine(done: number, total: number): string {
   return `${chalk.green(String(done))}/${total} complete`;
+}
+
+function keymapLine(): string {
+  return chalk.dim(`Keys: ${watchKeymap}`);
+}
+
+async function resetExercise(exercise: Exercise): Promise<void> {
+  await copyFile(fromRoot(exercise.templatePath), fromRoot(exercise.path));
+  const state = await loadState();
+  await saveState(mark(state, exercise.slug, "pending"));
+}
+
+async function resetAllExercises(): Promise<void> {
+  await Promise.all(exercises.map((exercise) => copyFile(fromRoot(exercise.templatePath), fromRoot(exercise.path))));
+  await saveState(freshState());
 }
 
 async function runAndRecord(exercise: Exercise, options: { silent?: boolean; experiment?: boolean } = {}): Promise<boolean> {
@@ -63,10 +80,13 @@ async function hintCommand(name?: string): Promise<void> {
 
 async function resetCommand(name: string): Promise<void> {
   const exercise = requireExercise(name);
-  await copyFile(fromRoot(exercise.templatePath), fromRoot(exercise.path));
-  const state = await loadState();
-  await saveState(mark(state, exercise.slug, "pending"));
+  await resetExercise(exercise);
   console.log(`Reset ${exercise.slug}`);
+}
+
+async function resetAllCommand(): Promise<void> {
+  await resetAllExercises();
+  console.log(`Reset ${exercises.length} exercises and cleared progress`);
 }
 
 async function checkAllCommand(): Promise<void> {
@@ -106,11 +126,12 @@ async function watchCommand(initialSlug?: string): Promise<void> {
     const done = exercises.filter((item) => state.completed[item.slug] === "done").length;
     console.log(chalk.bold(`${exercise.slug}: ${exercise.title}`));
     console.log(`${progressLine(done, exercises.length)} | ${exercise.path}`);
-    console.log(chalk.dim("Commands after each run: enter=rerun, h=hint, n=next, p=previous, q=quit"));
+    console.log(keymapLine());
     const ok = await runAndRecord(exercise, { experiment: true });
     if (ok) {
       console.log(chalk.green("Exercise passed."));
     }
+    console.log(keymapLine());
   };
 
   const watcher = chokidar.watch(fromRoot(exercise.path), { ignoreInitial: true });
@@ -121,13 +142,34 @@ async function watchCommand(initialSlug?: string): Promise<void> {
   await rerun();
 
   while (true) {
-    const answer = await input({ message: "dodlings" });
+    const answer = await input({ message: `dodlings (${watchKeymap})` });
     if (answer === "q") {
       await watcher.close();
       return;
     }
     if (answer === "h") {
       console.log(exercise.hint);
+      console.log(keymapLine());
+      continue;
+    }
+    if (answer === "r") {
+      await resetExercise(exercise);
+      console.log(`Reset ${exercise.slug}`);
+      await rerun();
+      continue;
+    }
+    if (answer === "R") {
+      const confirmation = await input({ message: 'Type "reset all" to reset every exercise and clear progress' });
+      if (confirmation === "reset all") {
+        await resetAllExercises();
+        state = await loadState();
+        exercise = requireExercise(nextPending(state), state.current);
+        console.log(`Reset ${exercises.length} exercises and cleared progress`);
+        await watcher.close();
+        return watchCommand(exercise.slug);
+      }
+      console.log("Reset all cancelled.");
+      console.log(keymapLine());
       continue;
     }
     if (answer === "n") {
@@ -161,6 +203,7 @@ program.command("run").argument("[name]", "Exercise name").description("Run one 
 program.command("check-all").description("Run all learner exercises and update progress").action(() => checkAllCommand());
 program.command("hint").argument("[name]", "Exercise name").description("Show a hint").action((name?: string) => hintCommand(name));
 program.command("reset").argument("<name>", "Exercise name").description("Reset one exercise").action((name: string) => resetCommand(name));
+program.command("reset-all").description("Reset all exercises and clear progress").action(() => resetAllCommand());
 program.command("list").description("List exercises and progress").action(() => listCommand());
 program.command("dev").command("check-solutions").description("Run reference solutions").action(() => checkSolutionsCommand());
 

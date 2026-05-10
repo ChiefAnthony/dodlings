@@ -1,3 +1,9 @@
+// Data-oriented programs start by deciding what facts exist.
+// In a web shop, the product card, cart line, database row, and API response
+// should all agree on one stable identity: the product id.
+//
+// The user-facing name can change. The id is what other records point at.
+
 type Product = {
   id: string;
   name: string;
@@ -12,17 +18,20 @@ const products: Product[] = [
 ];
 
 export function findProductById(id: string): Product | undefined {
-  // TODO: Find the product whose `id` equals the input id.
-  return products.find((product) => product.id === id);
+  // TODO:
+  // 1. Walk through the `products` array.
+  // 2. Compare each product's stable `id` with the input `id`.
+  // 3. Return the matching product record, or undefined when no record matches.
+  //
+  // This mirrors a common web-development flow:
+  // route `/products/tool-caliper` -> id `"tool-caliper"` -> product data.
+  return undefined;
 }
 
-export function experiment(id: string): Product | undefined {
-  for (const product of products) {
-    if (product.id === id) {
-      return product;
-    }
-  }
-  return undefined
+export function experiment(): void {
+  // Use this like Rustlings' `main`: try quick calls while learning.
+  // console.log(findProductById("tool-caliper"));
+  // console.log(findProductById("Coffee Beans"));
 }
 
 // -----------------------------------------------------------------------------

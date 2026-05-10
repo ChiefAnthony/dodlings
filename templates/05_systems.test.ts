@@ -1,3 +1,10 @@
+// Data-oriented design separates state data from the systems that change it.
+//
+// Instead of putting methods on Product objects, write a function that accepts:
+// current state data + command data -> next state data
+//
+// This is close to reducers in frontend apps and command handlers in backends.
+
 type InventoryState = {
   stockByProductId: Map<string, number>;
 };
@@ -8,13 +15,22 @@ type ReceiveStock = {
 };
 
 export function receiveStock(state: InventoryState, command: ReceiveStock): InventoryState {
-  // TODO: Return a new state with the command quantity added.
-  // Do not mutate the input state's Map.
+  // TODO:
+  // 1. Copy `state.stockByProductId` into a new Map.
+  // 2. Read the current quantity for `command.productId`, defaulting to 0.
+  // 3. Store current + command.quantity in the copied Map.
+  // 4. Return a new InventoryState object that uses the copied Map.
+  //
+  // Do not mutate the input state's Map. Tests check that `before` still has
+  // its old value after the system returns `after`.
   return state;
 }
 
 export function experiment(): void {
-  // You can optionally experiment here.
+  // Example:
+  // const before = { stockByProductId: new Map([["book-ts", 2]]) };
+  // const after = receiveStock(before, { productId: "book-ts", quantity: 3 });
+  // console.log(before.stockByProductId.get("book-ts"), after.stockByProductId.get("book-ts"));
 }
 
 // -----------------------------------------------------------------------------

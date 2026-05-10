@@ -18,8 +18,15 @@ pnpm dev              # watch the next pending exercise
 pnpm dev run orders1 # run one exercise
 pnpm dev hint orders1
 pnpm dev reset orders1
+pnpm dev reset-all
 pnpm dev list
 pnpm dev check-all
+```
+
+When running `pnpm dev` or `dodlings`, the watch prompt keeps the keymap visible:
+
+```text
+enter=rerun, h=hint, n=next, p=previous, r=reset, R=reset all, q=quit
 ```
 
 Reference solutions are stored in `solutions/` for validation and authoring. Normal commands do not reveal them.

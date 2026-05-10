@@ -1,14 +1,35 @@
+// Events are facts that already happened. Instead of storing only "current
+// stock", a backend might store a log:
+//
+// restock 5 books
+// sale 2 books
+//
+// Folding means replaying those facts into a useful current-state structure.
+
 type InventoryEvent =
   | { type: "restock"; productId: string; quantity: number }
   | { type: "sale"; productId: string; quantity: number };
 
 export function foldInventoryEvents(events: InventoryEvent[]): Map<string, number> {
-  // TODO: Apply events in order and return final stock by product id.
+  // TODO:
+  // 1. Create an empty `Map<string, number>` for current stock.
+  // 2. Loop through events in order.
+  // 3. Read current stock for the event's product id, defaulting to 0.
+  // 4. `restock` adds quantity. `sale` subtracts quantity.
+  // 5. Store the next quantity back into the map.
+  // 6. Return the map.
+  //
+  // The event records are the source facts. The Map is derived state.
   return new Map();
 }
 
 export function experiment(): void {
-  // You can optionally experiment here.
+  // Example:
+  // const events: InventoryEvent[] = [
+  //   { type: "restock", productId: "book-ts", quantity: 5 },
+  //   { type: "sale", productId: "book-ts", quantity: 2 }
+  // ];
+  // console.log(foldInventoryEvents(events));
 }
 
 // -----------------------------------------------------------------------------
