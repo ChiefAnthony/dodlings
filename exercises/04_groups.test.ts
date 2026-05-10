@@ -29,6 +29,21 @@ export function quantityByProduct(lines: OrderLine[]): ProductQuantity[] {
   return [];
 }
 
+export function topProductsByQuantity(lines: OrderLine[], limit: number): ProductQuantity[] {
+  // Part 2:
+  // Build on `quantityByProduct`.
+  //
+  // Dashboards often group raw records first, then sort the summary to answer a
+  // product question like "what are the top sellers?"
+  //
+  // TODO:
+  // 1. Reuse `quantityByProduct(lines)` to get grouped totals.
+  // 2. Sort by quantity descending.
+  // 3. Break ties by productId ascending so output is stable.
+  // 4. Return only the first `limit` records.
+  return [];
+}
+
 export function experiment(): void {
   // Try changing this data and logging your result:
   // const lines = [
@@ -52,6 +67,22 @@ describe("group lines by product", () => {
     ])).toEqual([
       { productId: "book-ts", quantity: 1 },
       { productId: "food-coffee", quantity: 5 }
+    ]);
+  });
+
+  it("returns an empty summary for no lines", () => {
+    expect(quantityByProduct([])).toEqual([]);
+  });
+
+  it("returns top products by quantity with stable ties", () => {
+    expect(topProductsByQuantity([
+      { productId: "food-coffee", quantity: 2 },
+      { productId: "book-ts", quantity: 5 },
+      { productId: "tool-caliper", quantity: 5 },
+      { productId: "food-coffee", quantity: 4 }
+    ], 2)).toEqual([
+      { productId: "food-coffee", quantity: 6 },
+      { productId: "book-ts", quantity: 5 }
     ]);
   });
 });

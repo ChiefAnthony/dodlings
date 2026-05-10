@@ -21,6 +21,21 @@ export function indexProductsById(products: Product[]): Map<string, Product> {
   return new Map();
 }
 
+export function productNamesForIds(products: Product[], ids: string[]): string[] {
+  // Part 2:
+  // Build an index once, then answer many lookups from it.
+  //
+  // This is the difference between repeatedly scanning data and preparing a
+  // query shape that matches the screen you need to render.
+  //
+  // TODO:
+  // 1. Build the id index with `indexProductsById(products)`.
+  // 2. Walk the requested ids in order.
+  // 3. Keep only ids that exist in the index.
+  // 4. Return the matching product names in the same order as `ids`.
+  return [];
+}
+
 export function experiment(): void {
   // Example:
   // const index = indexProductsById([{ id: "book-ts", name: "TypeScript Handbook" }]);
@@ -49,5 +64,22 @@ describe("build an index by id", () => {
     ]);
 
     expect(index.get("book-ts")?.name).toBe("New Name");
+  });
+
+  it("returns an empty index for empty input", () => {
+    expect(indexProductsById([]).size).toBe(0);
+  });
+
+  it("looks up names for requested ids in request order", () => {
+    const products = [
+      { id: "book-ts", name: "TypeScript Handbook" },
+      { id: "tool-caliper", name: "Digital Caliper" },
+      { id: "food-coffee", name: "Coffee Beans" }
+    ];
+
+    expect(productNamesForIds(products, ["food-coffee", "missing", "book-ts"])).toEqual([
+      "Coffee Beans",
+      "TypeScript Handbook"
+    ]);
   });
 });

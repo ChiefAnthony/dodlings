@@ -23,6 +23,25 @@ export function foldInventoryEvents(events: InventoryEvent[]): Map<string, numbe
   return new Map();
 }
 
+type StockRecord = {
+  productId: string;
+  quantity: number;
+};
+
+export function inventorySnapshot(events: InventoryEvent[]): StockRecord[] {
+  // Part 2:
+  // Build on `foldInventoryEvents`.
+  //
+  // A Map is useful inside the program. APIs and rendered views usually need
+  // serializable records with stable ordering.
+  //
+  // TODO:
+  // 1. Fold events into a stock map.
+  // 2. Convert the map into `{ productId, quantity }` records.
+  // 3. Sort by productId ascending.
+  return [];
+}
+
 export function experiment(): void {
   // Example:
   // const events: InventoryEvent[] = [
@@ -46,5 +65,25 @@ describe("fold inventory events", () => {
 
     expect(stock.get("book-ts")).toBe(3);
     expect(stock.get("food-coffee")).toBe(4);
+  });
+
+  it("returns an empty stock map for no events", () => {
+    expect(foldInventoryEvents([]).size).toBe(0);
+  });
+
+  it("allows sales to make stock negative", () => {
+    const stock = foldInventoryEvents([{ type: "sale", productId: "book-ts", quantity: 2 }]);
+    expect(stock.get("book-ts")).toBe(-2);
+  });
+
+  it("builds a sorted serializable inventory snapshot", () => {
+    expect(inventorySnapshot([
+      { type: "restock", productId: "food-coffee", quantity: 4 },
+      { type: "restock", productId: "book-ts", quantity: 5 },
+      { type: "sale", productId: "book-ts", quantity: 2 }
+    ])).toEqual([
+      { productId: "book-ts", quantity: 3 },
+      { productId: "food-coffee", quantity: 4 }
+    ]);
   });
 });

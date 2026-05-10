@@ -11,6 +11,20 @@ export function indexProductsById(products: Product[]): Map<string, Product> {
   return index;
 }
 
+export function productNamesForIds(products: Product[], ids: string[]): string[] {
+  const index = indexProductsById(products);
+  const names: string[] = [];
+
+  for (const id of ids) {
+    const product = index.get(id);
+    if (product) {
+      names.push(product.name);
+    }
+  }
+
+  return names;
+}
+
 export function experiment(): void {
   // You can optionally experiment here.
 }
@@ -37,5 +51,22 @@ describe("build an index by id", () => {
     ]);
 
     expect(index.get("book-ts")?.name).toBe("New Name");
+  });
+
+  it("returns an empty index for empty input", () => {
+    expect(indexProductsById([]).size).toBe(0);
+  });
+
+  it("looks up names for requested ids in request order", () => {
+    const products = [
+      { id: "book-ts", name: "TypeScript Handbook" },
+      { id: "tool-caliper", name: "Digital Caliper" },
+      { id: "food-coffee", name: "Coffee Beans" }
+    ];
+
+    expect(productNamesForIds(products, ["food-coffee", "missing", "book-ts"])).toEqual([
+      "Coffee Beans",
+      "TypeScript Handbook"
+    ]);
   });
 });

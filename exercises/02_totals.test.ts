@@ -33,6 +33,26 @@ export function orderTotalCents(lines: OrderLine[]): number {
   return 0;
 }
 
+type OrderSummary = {
+  acceptedLineCount: number;
+  ignoredLineCount: number;
+  totalCents: number;
+};
+
+export function summarizeOrder(lines: OrderLine[]): OrderSummary {
+  // Part 2:
+  // Build on `orderTotalCents`, but also report what happened to the input.
+  //
+  // Checkout UIs often need both the final total and enough metadata to explain
+  // why some submitted lines were ignored.
+  //
+  // TODO:
+  // 1. Count lines whose product id exists in `products`.
+  // 2. Count lines whose product id does not exist.
+  // 3. Use `orderTotalCents(lines)` for the total.
+  return { acceptedLineCount: 0, ignoredLineCount: 0, totalCents: 0 };
+}
+
 export function experiment(): void {
   // Example:
   // const cart = [
@@ -56,5 +76,21 @@ describe("batch order totals", () => {
 
   it("ignores unknown product ids", () => {
     expect(orderTotalCents([{ productId: "missing", quantity: 99 }])).toBe(0);
+  });
+
+  it("returns zero for an empty cart", () => {
+    expect(orderTotalCents([])).toBe(0);
+  });
+
+  it("summarizes accepted and ignored order lines", () => {
+    expect(summarizeOrder([
+      { productId: "book-ts", quantity: 1 },
+      { productId: "missing", quantity: 5 },
+      { productId: "food-coffee", quantity: 2 }
+    ])).toEqual({
+      acceptedLineCount: 2,
+      ignoredLineCount: 1,
+      totalCents: 6800
+    });
   });
 });

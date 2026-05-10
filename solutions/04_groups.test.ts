@@ -19,6 +19,12 @@ export function quantityByProduct(lines: OrderLine[]): ProductQuantity[] {
     .map(([productId, quantity]) => ({ productId, quantity }));
 }
 
+export function topProductsByQuantity(lines: OrderLine[], limit: number): ProductQuantity[] {
+  return quantityByProduct(lines)
+    .sort((left, right) => right.quantity - left.quantity || left.productId.localeCompare(right.productId))
+    .slice(0, limit);
+}
+
 export function experiment(): void {
   // You can optionally experiment here.
 }
@@ -36,6 +42,22 @@ describe("group lines by product", () => {
     ])).toEqual([
       { productId: "book-ts", quantity: 1 },
       { productId: "food-coffee", quantity: 5 }
+    ]);
+  });
+
+  it("returns an empty summary for no lines", () => {
+    expect(quantityByProduct([])).toEqual([]);
+  });
+
+  it("returns top products by quantity with stable ties", () => {
+    expect(topProductsByQuantity([
+      { productId: "food-coffee", quantity: 2 },
+      { productId: "book-ts", quantity: 5 },
+      { productId: "tool-caliper", quantity: 5 },
+      { productId: "food-coffee", quantity: 4 }
+    ], 2)).toEqual([
+      { productId: "food-coffee", quantity: 6 },
+      { productId: "book-ts", quantity: 5 }
     ]);
   });
 });
